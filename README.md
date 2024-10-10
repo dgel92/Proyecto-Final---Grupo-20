@@ -1,16 +1,20 @@
-Proyecto-final- Grupo 20
-Proyecto integrador solicitado por el Instituto Superior Politecnico Córdoba
+# Proyecto-final - Grupo 20
+## Proyecto integrador solicitado por el Instituto Superior Politécnico Córdoba
 
-Proposito del proyecto:
+### Propósito del proyecto:
 
-Partiendo del diseño de clases previo, aplicando TDD (Test Driven Development) y las 4
-reglas de diseño simple propuestas por Kent Beck crear las correspondientes clases y el
-programa de consola que permita al usuario manipular la aplicación.
+Partiendo del diseño de clases previo, aplicando TDD (Test Driven Development) y las 4 reglas de diseño simple propuestas por Kent Beck, se crearán las correspondientes clases y el programa de consola que permita al usuario manipular la aplicación.
 
+### Participantes:
 
-Participantes:
+- Nahir Ferreyra Dubouloy  
+  — Rol Scrum  
 
-Nahir Ferreyra Dubouloy --Rol Scrum
-Agustin Gibaut -- Rol Dev
-Daniel Gonzalez --Rol Dev
-Gabriel Gori --Rol Dev
+- Agustin Gibaut  
+  — Rol Dev  
+
+- Daniel Gonzalez  
+  — Rol Dev  
+
+- Gabriel Gori  
+  — Rol Dev  
