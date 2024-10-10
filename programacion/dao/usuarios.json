@@ -1,0 +1,11 @@
+{
+    "juan.perez@gmail.com": {
+        "nombre": "Juan",
+        "apellido": "P\u00e9rez",
+        "cuil": "20-12345678-9",
+        "password": "$2b$12$VKyZXRf9IM5lH5wO2DLrjOh2PpURZSRG7Y7GTUguUBuCqgqxlbIn6",
+        "intentos_fallidos": 0,
+        "bloqueado": false,
+        "saldo": 1000000.0
+    }
+}
