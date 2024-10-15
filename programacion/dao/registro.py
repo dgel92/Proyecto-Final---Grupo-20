@@ -20,30 +20,52 @@ def guardar_usuarios():
 usuarios = cargar_usuarios()
 
 
-def registrar_usuario(
-    nombre, apellido, cuil, email, password, pregunta_seguridad, respuesta_seguridad
-):
-    if any(user["cuil"] == cuil for user in usuarios.values()) or email in usuarios:
-        print("Error: El CUIL o el email ingresados ya están registrados.")
-        return
+class Usuario:
+    def __init__(
+        self,
+        nombre,
+        apellido,
+        cuil,
+        email,
+        password,
+        pregunta_seguridad,
+        respuesta_seguridad,
+    ):
+        self.nombre = nombre
+        self.apellido = apellido
+        self.cuil = cuil
+        self.email = email
+        self.hashed_password = bcrypt.hashpw(
+            password.encode("utf-8"), bcrypt.gensalt()
+        ).decode("utf-8")
+        self.pregunta_seguridad = pregunta_seguridad
+        self.respuesta_seguridad = respuesta_seguridad
+        self.intentos_fallidos = 0
+        self.bloqueado = False
+        self.saldo = 1000000.0
 
-    hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
-    saldo_inicial = 1000000.0
+    def guardar(self):
+        if (
+            any(user["cuil"] == self.cuil for user in usuarios.values())
+            or self.email in usuarios
+        ):
+            print("Error: El CUIL o el email ingresados ya están registrados.")
+            return
 
-    usuarios[email] = {
-        "nombre": nombre,
-        "apellido": apellido,
-        "cuil": cuil,
-        "password": hashed_password.decode("utf-8"),
-        "intentos_fallidos": 0,
-        "bloqueado": False,
-        "saldo": saldo_inicial,
-        "pregunta_seguridad": pregunta_seguridad,
-        "respuesta_seguridad": respuesta_seguridad,
-    }
+        usuarios[self.email] = {
+            "nombre": self.nombre,
+            "apellido": self.apellido,
+            "cuil": self.cuil,
+            "password": self.hashed_password,
+            "intentos_fallidos": self.intentos_fallidos,
+            "bloqueado": self.bloqueado,
+            "saldo": self.saldo,
+            "pregunta_seguridad": self.pregunta_seguridad,
+            "respuesta_seguridad": self.respuesta_seguridad,
+        }
 
-    guardar_usuarios()
-    print(f"Usuario registrado exitosamente con un saldo inicial de ${saldo_inicial}.")
+        guardar_usuarios()
+        print(f"Usuario registrado exitosamente con un saldo inicial de ${self.saldo}.")
 
 
 def mostrar_usuarios_registrados():
@@ -99,10 +121,7 @@ def recuperar_contrasena(email, nueva_password, respuesta_seguridad):
         return
 
     hashed_password = bcrypt.hashpw(nueva_password.encode("utf-8"), bcrypt.gensalt())
-    usuario["password"] = hashed_password.decode(
-        "utf-8"
-    )  # Actualizar el hash de la contraseña
-
+    usuario["password"] = hashed_password.decode("utf-8")
     usuario["bloqueado"] = False
     usuario["intentos_fallidos"] = 0
 
@@ -110,8 +129,8 @@ def recuperar_contrasena(email, nueva_password, respuesta_seguridad):
     print("Contraseña actualizada exitosamente y cuenta desbloqueada.")
 
 
-# Prueba
-registrar_usuario(
+# Prueba creando un objeto Usuario y registrando
+nuevo_usuario = Usuario(
     "Juan",
     "Pérez",
     "20-12345678-9",
@@ -120,24 +139,18 @@ registrar_usuario(
     "¿Cuál es el nombre de tu primera mascota?",
     "Firulais",
 )
+nuevo_usuario.guardar()
 
-# Mostrar usuarios registrados
 mostrar_usuarios_registrados()
 
-# Prueba de logueo
 email_usuario = "juan.perez@gmail.com"
 iniciar_sesion(email_usuario, "password123")
 iniciar_sesion(email_usuario, "incorrecto1")
 iniciar_sesion(email_usuario, "incorrecto2")
 iniciar_sesion(email_usuario, "incorrecto3")
 
-# Prueba TDD de ver si se guardaron los cambios en el JSON
-mostrar_usuarios_registrados()
-
-# Prueba TDD de recupero de contraseña
 nueva_contrasena = "nueva_password123"
 respuesta_usuario = "Firulais"
 recuperar_contrasena(email_usuario, nueva_contrasena, respuesta_usuario)
 
-# Prueba TDD
 mostrar_usuarios_registrados()
