@@ -1,13 +1,15 @@
 {
     "juan.perez@gmail.com": {
         "nombre": "Juan",
-        "apellido": "P\u00c3\u00a9rez",
+        "apellido": "PÃ©rez",
         "cuil": "20-12345678-9",
-        "password": "$2b$12$9XKSsHGoavCiKUuQ8bctPuTdowTSLfy4Qs36ZkOLxDFmAYGdBolDS",
+        "password": "$2b$12$Ty06ADH.PXwY8VARM9syAekLSu81aNpdaPKlUSTIeaHF6x7OYbZz2",
         "intentos_fallidos": 0,
         "bloqueado": false,
         "saldo": 1000000.0,
-        "pregunta_seguridad": "\u00c2\u00bfCu\u00c3\u00a1l es el nombre de tu primera mascota?",
+        "transacciones": [],
+        "inversiones": [],
+        "pregunta_seguridad": "Â¿CuÃ¡l es el nombre de tu primera mascota?",
         "respuesta_seguridad": "Firulais"
     }
 }

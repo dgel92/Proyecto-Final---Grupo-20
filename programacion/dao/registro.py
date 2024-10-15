@@ -7,14 +7,15 @@ archivo_usuarios = "usuarios.json"
 
 def cargar_usuarios():
     if os.path.exists(archivo_usuarios):
-        with open(archivo_usuarios, "r") as archivo:
-            return json.load(archivo)
-    return {}
+        with open(archivo_usuarios, "r", encoding="utf-8") as file:
+            return json.load(file)
+    else:
+        return {}
 
 
 def guardar_usuarios():
-    with open(archivo_usuarios, "w") as archivo:
-        json.dump(usuarios, archivo, indent=4)
+    with open(archivo_usuarios, "w", encoding="utf-8") as file:
+        json.dump(usuarios, file, indent=4, ensure_ascii=False)
 
 
 usuarios = cargar_usuarios()
