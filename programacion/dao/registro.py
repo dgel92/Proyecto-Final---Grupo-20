@@ -85,7 +85,7 @@ def mostrar_usuarios_registrados():
 def iniciar_sesion(email, password):
     if email not in usuarios:
         print("Error: El email ingresado no está registrado.")
-        return
+        return False  # Retorna False si el email no está registrado
 
     usuario = usuarios[email]
 
@@ -93,11 +93,12 @@ def iniciar_sesion(email, password):
         print(
             "Su cuenta está bloqueada. Debe cambiar la contraseña para poder iniciar sesión."
         )
-        return
+        return False  # Retorna False si la cuenta está bloqueada
 
     if bcrypt.checkpw(password.encode("utf-8"), usuario["password"].encode("utf-8")):
         print(f"Bienvenido {usuario['nombre']}!")
         usuario["intentos_fallidos"] = 0
+        return True  # Retorna True si el inicio de sesión es exitoso
     else:
         usuario["intentos_fallidos"] += 1
         print("Contraseña incorrecta.")
@@ -106,8 +107,9 @@ def iniciar_sesion(email, password):
             print(
                 "Ha superado el número de intentos fallidos. Su cuenta ha sido bloqueada."
             )
+        return False  # Retorna False si la contraseña es incorrecta
 
-    guardar_usuarios()
+    guardar_usuarios()  # Asegúrate de que esto esté fuera de las condiciones
 
 
 def recuperar_contrasena(email, nueva_password, respuesta_seguridad):
@@ -128,30 +130,3 @@ def recuperar_contrasena(email, nueva_password, respuesta_seguridad):
 
     guardar_usuarios()
     print("Contraseña actualizada exitosamente y cuenta desbloqueada.")
-
-
-# Prueba creando un objeto Usuario y registrando
-nuevo_usuario = Usuario(
-    "Juan",
-    "Pérez",
-    "20-12345678-9",
-    "juan.perez@gmail.com",
-    "password123",
-    "¿Cuál es el nombre de tu primera mascota?",
-    "Firulais",
-)
-nuevo_usuario.guardar()
-
-mostrar_usuarios_registrados()
-
-email_usuario = "juan.perez@gmail.com"
-iniciar_sesion(email_usuario, "password123")
-iniciar_sesion(email_usuario, "incorrecto1")
-iniciar_sesion(email_usuario, "incorrecto2")
-iniciar_sesion(email_usuario, "incorrecto3")
-
-nueva_contrasena = "nueva_password123"
-respuesta_usuario = "Firulais"
-recuperar_contrasena(email_usuario, nueva_contrasena, respuesta_usuario)
-
-mostrar_usuarios_registrados()
