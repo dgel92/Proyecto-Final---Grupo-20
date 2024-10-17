@@ -1,0 +1,10 @@
+# Ignorar archivos de cache
+__pycache__/
+migrations/
+*.pyc
+
+#ignorar archivos de configuracion local
+config.ini
+
+#ignorar directorios de dependencias
+env/
