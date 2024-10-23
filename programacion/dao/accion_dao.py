@@ -1,4 +1,10 @@
-from ..conn.conn_db import conectar_bd
+import sys
+import os
+
+# Añadir el directorio base del proyecto al sys.path para resolver las importaciones
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from conn.conn_db import conectar_bd
 
 class AccionDAO:
     def __init__(self):
@@ -37,3 +43,24 @@ if __name__ == "__main__":
     
     # Cerrar la conexión a la base de datos
     accion_dao.cerrar_conexion()
+
+def insertar_accion(codigo, nombre, precio_compra, precio_venta, cantidad_disponible):
+    conn = conectar_bd()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            INSERT INTO acciones (codigo, nombre, precio_compra, precio_venta, cantidad_disponible)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (codigo, nombre, precio_compra, precio_venta, cantidad_disponible))
+        conn.commit()
+        print(f"Acción {nombre} insertada correctamente.")
+    except mysql.connector.Error as err:
+        print(f"Error al insertar la acción: {err}")
+    finally:
+        cursor.close()
+        conn.close()
+
+# Ejemplo de uso
+if __name__ == "__main__":
+    # Inserta varias acciones conocidas
+    insertar_accion('pepino', 'pepe', 56.80, 57.20, 1000)

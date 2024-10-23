@@ -29,7 +29,10 @@ class CotizacionDAO:
         cursor.execute("SELECT * FROM cotizaciones WHERE codigo_accion = %s", (codigo_accion,))
         cotizaciones = cursor.fetchall()
         cursor.close()
-        return cotizaciones
+
+        # Crear instancias de Cotizacion a partir de los datos recuperados
+        cotizacion_objs = [Cotizacion(**cot) for cot in cotizaciones]
+        return cotizacion_objs
 
     def cerrar_conexion(self):
         self.conn.close()
@@ -44,7 +47,7 @@ if __name__ == "__main__":
     # Obtener cotizaciones por código de acción
     cotizaciones = cotizacion_dao.obtener_cotizaciones_por_codigo('AAPL')
     for cotizacion in cotizaciones:
-        print(cotizacion)
+        print(f"Código: {cotizacion.codigo_accion}, Precio: {cotizacion.precio}, Fecha: {cotizacion.fecha}")
     
     # Cerrar la conexión a la base de datos
     cotizacion_dao.cerrar_conexion()
