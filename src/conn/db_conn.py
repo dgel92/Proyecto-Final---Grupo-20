@@ -1,54 +1,25 @@
 import mysql.connector
-from mysql.connector import errorcode
 
 
-class DBConn:
-    def __init__(self, user, password, host, database, port):
-        self.user = user
-        self.password = password
-        self.host = host
-        self.database = database
-        self.port = port
-        self.connection = None
+# Configuración de conexión
+def connect_to_mysql():
+    config = {
+        "user": "uwjv6tgwnzz3xsj9",  # Reemplaza con tu usuario de Clever Cloud
+        "password": "Rmrb4xAq9z6MrHFqai6L",  # Reemplaza con tu contraseña de Clever Cloud
+        "host": "b9vkygdkqfhay1hkwomd-mysql.services.clever-cloud.com",  # Host correcto
+        "database": "b9vkygdkqfhay1hkwomd",  # Nombre de la base de datos
+        "raise_on_warnings": True,
+    }
 
-    def connect(self):
-        try:
-            self.connection = mysql.connector.connect(
-                user=self.user,
-                password=self.password,
-                host=self.host,
-                database=self.database,
-                port=self.port,
-            )
-            print("Conexión exitosa a la base de datos")
-            return self.connection
-        except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                raise Exception("Usuario o contraseña incorrecta")
-            elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                raise Exception("La base de datos no existe")
-            else:
-                raise Exception(f"Error: {err}")
+    try:
+        # Estableciendo la conexión
+        connection = mysql.connector.connect(**config)
+        print("Conexión exitosa")
+        return connection  # Devuelve la conexión
 
-    def close(self):
-        if self.connection:
-            self.connection.close()
-            print("Conexión cerrada.")
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None  # Devuelve None en caso de error
 
 
-if __name__ == "__main__":
-    db_connection = DBConn(
-        user="root",
-        password="12345678",
-        host="34.176.226.47",
-        database="Base-proyecto",
-        port="3306",
-    )
-
-    # Conectar a la base de datos
-    connection = db_connection.connect()
-
-    # Realiza tus operaciones aquí...
-
-    # Cerrar la conexión
-    db_connection.close()
+# El bloque de código anterior ahora está dentro de la función connect_to_mysql.
