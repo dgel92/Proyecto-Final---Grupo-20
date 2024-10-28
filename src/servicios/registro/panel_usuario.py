@@ -1,9 +1,39 @@
-from programacion.dao.registro.registro_usuario import (
-    Usuario,
+from src.servicios.registro.registro_usuario import (
     iniciar_sesion,
     recuperar_contrasena,
     mostrar_usuarios_registrados,
+    registrar_usuario,
 )
+
+
+class Usuario:
+    def __init__(
+        self,
+        nombre,
+        apellido,
+        cuil,
+        email,
+        password,
+        pregunta_seguridad,
+        respuesta_seguridad,
+    ):
+        self.nombre = nombre
+        self.apellido = apellido
+        self.cuil = cuil
+        self.email = email
+        # Se realiza el hash de la contraseña para almacenar de forma segura
+        self.hashed_password = bcrypt.hashpw(
+            password.encode("utf-8"), bcrypt.gensalt()
+        ).decode("utf-8")
+        self.pregunta_seguridad = pregunta_seguridad
+        self.respuesta_seguridad = respuesta_seguridad
+        self.intentos_fallidos = 0
+        self.bloqueado = False
+        self.saldo = 0.0
+
+    def guardar(self):
+        # Llama a la función registrar_usuario para almacenar el usuario en la base de datos
+        registrar_usuario(self)
 
 
 def mostrar_menu():

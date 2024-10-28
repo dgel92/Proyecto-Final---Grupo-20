@@ -23,3 +23,4 @@ def connect_to_mysql():
 
 
 # El bloque de código anterior ahora está dentro de la función connect_to_mysql.
+# El bloque de código anterior ahora está dentro de la función connect_to_mysql.

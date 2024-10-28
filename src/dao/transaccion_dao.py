@@ -6,6 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from conn.conn_db import conectar_bd
 
+
 class AccionDAO:
     def __init__(self):
         self.conn = conectar_bd()
@@ -20,7 +21,10 @@ class AccionDAO:
     def actualizar_cantidad(self, codigo, cantidad):
         cursor = self.conn.cursor()
         try:
-            cursor.execute("UPDATE acciones SET cantidad_disponible = %s WHERE codigo = %s", (cantidad, codigo))
+            cursor.execute(
+                "UPDATE acciones SET cantidad_disponible = %s WHERE codigo = %s",
+                (cantidad, codigo),
+            )
             self.conn.commit()
         except mysql.connector.Error as err:
             print("Error al actualizar la cantidad de acciones: {}".format(err))
@@ -37,6 +41,7 @@ class AccionDAO:
     def cerrar_conexion(self):
         self.conn.close()
 
+
 class InversorDAO:
     def __init__(self):
         self.conn = conectar_bd()
@@ -51,7 +56,9 @@ class InversorDAO:
     def actualizar_saldo(self, cuit, nuevo_saldo):
         cursor = self.conn.cursor()
         try:
-            cursor.execute("UPDATE inversores SET saldo = %s WHERE cuit = %s", (nuevo_saldo, cuit))
+            cursor.execute(
+                "UPDATE inversores SET saldo = %s WHERE cuit = %s", (nuevo_saldo, cuit)
+            )
             self.conn.commit()
         except mysql.connector.Error as err:
             print("Error al actualizar el saldo del inversor: {}".format(err))
@@ -60,6 +67,7 @@ class InversorDAO:
 
     def cerrar_conexion(self):
         self.conn.close()
+
 
 def comprar_accion(inversor_email, codigo_accion, cantidad):
     inversor_dao = InversorDAO()
@@ -75,16 +83,16 @@ def comprar_accion(inversor_email, codigo_accion, cantidad):
         print("Acción no disponible en el mercado.")
         return
 
-    total_compra = accion['precio_compra'] * cantidad
+    total_compra = accion["precio_compra"] * cantidad
     comision = total_compra * 0.01  # Comisión del 1%
     total_con_comision = total_compra + comision
 
-    if inversor['saldo'] < total_con_comision:
+    if inversor["saldo"] < total_con_comision:
         print("Saldo insuficiente para realizar la compra.")
         return
 
-    nuevo_saldo = inversor['saldo'] - total_con_comision
-    nueva_cantidad_disponible = accion['cantidad_disponible'] - cantidad
+    nuevo_saldo = inversor["saldo"] - total_con_comision
+    nueva_cantidad_disponible = accion["cantidad_disponible"] - cantidad
 
     if nueva_cantidad_disponible < 0:
         print("No hay suficientes acciones disponibles en el mercado.")
@@ -93,10 +101,19 @@ def comprar_accion(inversor_email, codigo_accion, cantidad):
     # Registrar la transacción
     cursor = accion_dao.conn.cursor()
     try:
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO transacciones (cuit, codigo_accion, tipo, cantidad, precio, total, fecha)
             VALUES (%s, %s, 'compra', %s, %s, %s, NOW())
-        """, (inversor['cuit'], codigo_accion, cantidad, accion['precio_compra'], total_con_comision))
+        """,
+            (
+                inversor["cuit"],
+                codigo_accion,
+                cantidad,
+                accion["precio_compra"],
+                total_con_comision,
+            ),
+        )
         accion_dao.conn.commit()
     except mysql.connector.Error as err:
         print("Error al registrar la transacción: {}".format(err))
@@ -107,7 +124,7 @@ def comprar_accion(inversor_email, codigo_accion, cantidad):
     accion_dao.actualizar_cantidad(codigo_accion, nueva_cantidad_disponible)
 
     # Actualizar el saldo del inversor
-    inversor_dao.actualizar_saldo(inversor['cuit'], nuevo_saldo)
+    inversor_dao.actualizar_saldo(inversor["cuit"], nuevo_saldo)
 
     print(f"Compra de {cantidad} acciones de {codigo_accion} realizada con éxito.")
 
@@ -115,18 +132,19 @@ def comprar_accion(inversor_email, codigo_accion, cantidad):
     inversor_dao.cerrar_conexion()
     accion_dao.cerrar_conexion()
 
+
 # Pruebas de ejemplo
 if __name__ == "__main__":
     # Obtener información de una acción
     accion_dao = AccionDAO()
-    accion = accion_dao.obtener_por_codigo('AAPL')
+    accion = accion_dao.obtener_por_codigo("AAPL")
     print(accion)
-    
+
     # Actualizar la cantidad disponible de una acción
-    accion_dao.actualizar_cantidad('AAPL', 1500)
-    
+    accion_dao.actualizar_cantidad("AAPL", 1500)
+
     # Comprar una acción
-    comprar_accion('juan.perez@gmail.com', 'AAPL', 10)
+    comprar_accion("juan.perez@gmail.com", "AAPL", 10)
 
     # Cerrar la conexión a la base de datos
     accion_dao.cerrar_conexion()
