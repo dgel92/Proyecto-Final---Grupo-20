@@ -16,7 +16,6 @@ del Mercado de Valores de Buenos Aires (Merval).
 -  Nahir Ferreyra Dubouloy [@nahirfd](https://github.com/nahirfd)
 -  Daniel Esteban Gonzalez Lara [@dgel92](https://github.com/dgel92)
 -  Agustin Gibaut [@Agustin-Gibaute](https://github.com/Agustin-Gibaute)
--  Gabriel Gori [@Gaby1980](https://github.com/Gaby1980)
 
 
 ## Enlaces
