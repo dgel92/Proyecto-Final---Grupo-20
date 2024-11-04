@@ -2,41 +2,60 @@ from src.conn.db_conn import connect_to_mysql
 from datetime import datetime
 
 
-def comprar_accion(inversor_id, simbolo, cantidad):
+def comprar_accion(cuit, simbolo, cantidad):
     connection = connect_to_mysql()
-    if connection and connection.is_connected():
+    if connection:
         cursor = connection.cursor()
         try:
-            # Validación de cantidad
-            if cantidad <= 0:
-                print("La cantidad debe ser un número positivo.")
-                return
+            # Lógica para verificar si el usuario tiene saldo suficiente
+            cursor.execute("SELECT saldo FROM inversores WHERE cuit = %s", (cuit,))
+            saldo = cursor.fetchone()[0]
 
-            cursor.execute(
-                "INSERT INTO transacciones (inversor_id, simbolo, tipo, cantidad) VALUES (%s, %s, 'compra', %s)",
-                (inversor_id, simbolo, cantidad),
-            )
-            connection.commit()
-            print("Compra realizada con éxito.")
-        except Exception as e:
-            print(f"Error al realizar la compra: {e}")
+            # Suponiendo que tienes una función que obtiene el precio de la acción
+            precio_accion = obtener_precio_accion(simbolo)
+            costo_total = precio_accion * cantidad
+
+            if saldo >= costo_total:
+                # Realizar la compra
+                cursor.execute(
+                    "INSERT INTO transacciones (cuit_inversor, simbolo, cantidad, precio) VALUES (%s, %s, %s, %s)",
+                    (cuit, simbolo, cantidad, precio_accion),
+                )
+                # Actualizar el saldo
+                nuevo_saldo = saldo - costo_total
+                cursor.execute(
+                    "UPDATE inversores SET saldo = %s WHERE cuit = %s",
+                    (nuevo_saldo, cuit),
+                )
+                connection.commit()
+                print("Compra realizada con éxito.")
+            else:
+                print("Saldo insuficiente para realizar la compra.")
+        except mysql.connector.Error as err:
+            print(f"Error al realizar la compra: {err}")
         finally:
             cursor.close()
             connection.close()
-    else:
-        print("No se pudo conectar a la base de datos")
 
 
 def vender_accion(inversor_id, simbolo, cantidad):
     connection = connect_to_mysql()
     if connection and connection.is_connected():
-        cursor = connection.cursor()
+        cursor = connection.cursor(dictionary=True)
         try:
             if cantidad <= 0:
                 print("La cantidad debe ser un número positivo.")
                 return
 
-            # Aquí podrías agregar una verificación para ver si el inversor tiene suficientes acciones
+            # Verificar si el inversor tiene suficientes acciones
+            cursor.execute(
+                "SELECT cantidad FROM portafolio WHERE inversor_id = %s AND simbolo = %s",
+                (inversor_id, simbolo),
+            )
+            resultado = cursor.fetchone()
+            if not resultado or resultado["cantidad"] < cantidad:
+                print("No tienes suficientes acciones para vender.")
+                return
 
             cursor.execute(
                 "INSERT INTO transacciones (inversor_id, simbolo, tipo, cantidad) VALUES (%s, %s, 'venta', %s)",
