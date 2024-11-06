@@ -2,26 +2,25 @@ from src.conn.db_conn import connect_to_mysql
 from datetime import datetime
 
 
-def comprar_accion(cuit, simbolo, cantidad):
+import mysql.connector  # Asegúrate de que esta importación esté presente
+
+
+def comprar_accion(cuit, codigo_accion, cantidad):
     connection = connect_to_mysql()
     if connection:
         cursor = connection.cursor()
         try:
-            # Lógica para verificar si el usuario tiene saldo suficiente
             cursor.execute("SELECT saldo FROM inversores WHERE cuit = %s", (cuit,))
             saldo = cursor.fetchone()[0]
 
-            # Suponiendo que tienes una función que obtiene el precio de la acción
-            precio_accion = obtener_precio_accion(simbolo)
+            precio_accion = obtener_precio_accion(codigo_accion)
             costo_total = precio_accion * cantidad
 
             if saldo >= costo_total:
-                # Realizar la compra
                 cursor.execute(
-                    "INSERT INTO transacciones (cuit_inversor, simbolo, cantidad, precio) VALUES (%s, %s, %s, %s)",
-                    (cuit, simbolo, cantidad, precio_accion),
+                    "INSERT INTO transacciones (cuit, codigo_accion, cantidad, precio, total) VALUES (%s, %s, %s, %s, %s)",
+                    (cuit, codigo_accion, cantidad, precio_accion, costo_total),
                 )
-                # Actualizar el saldo
                 nuevo_saldo = saldo - costo_total
                 cursor.execute(
                     "UPDATE inversores SET saldo = %s WHERE cuit = %s",
@@ -37,6 +36,16 @@ def comprar_accion(cuit, simbolo, cantidad):
             cursor.close()
             connection.close()
 
+def obtener_precio_accion(simbolo):
+    connection = connect_to_mysql()
+    cursor = connection.cursor()
+    cursor.execute("SELECT precio_compra FROM acciones WHERE codigo = %s", (simbolo,))
+    precio = cursor.fetchone()
+    if precio:
+        return precio[0]
+    else:
+        raise ValueError(f"No se encontró el precio para la acción {simbolo}")
+
 
 def vender_accion(inversor_id, simbolo, cantidad):
     connection = connect_to_mysql()
@@ -47,7 +56,6 @@ def vender_accion(inversor_id, simbolo, cantidad):
                 print("La cantidad debe ser un número positivo.")
                 return
 
-            # Verificar si el inversor tiene suficientes acciones
             cursor.execute(
                 "SELECT cantidad FROM portafolio WHERE inversor_id = %s AND simbolo = %s",
                 (inversor_id, simbolo),
@@ -77,7 +85,6 @@ def calcular_rendimiento(inversor_id, fecha_inicio, fecha_fin):
     if connection and connection.is_connected():
         cursor = connection.cursor()
         try:
-            # Validar fechas
             datetime.strptime(fecha_inicio, "%Y-%m-%d")
             datetime.strptime(fecha_fin, "%Y-%m-%d")
 

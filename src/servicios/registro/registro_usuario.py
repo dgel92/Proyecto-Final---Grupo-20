@@ -9,27 +9,23 @@ def registrar_usuario(nombre, email, password):
     if connection:
         cursor = connection.cursor()
         try:
-            # Verificar si el email ya está registrado
             cursor.execute("SELECT email FROM inversores WHERE email = %s", (email,))
             if cursor.fetchone():
                 print("El email ingresado ya está registrado.")
                 return
 
-            # Hash de la contraseña
             hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 
-            # Insertar el nuevo usuario sin intentos_fallidos ni bloqueado
             cursor.execute(
-                "INSERT INTO inversores (nombre, email, contraseña) VALUES (%s, %s, %s)",
-                (nombre, email, hashed_password),
+                "INSERT INTO inversores (nombre, email, contraseña, saldo) VALUES (%s, %s, %s, %s)",
+                (nombre, email, hashed_password, 1000000),
             )
             connection.commit()
             print("Usuario registrado con éxito.")
 
-            # Obtener el ID del inversor para pasar al menú
             cursor.execute("SELECT cuit FROM inversores WHERE email = %s", (email,))
             inversor_id = cursor.fetchone()[0]
-            menu_principal(inversor_id)  # Llamar al menú broker
+            menu_principal(inversor_id)
         except Exception as e:
             print(f"Error al registrar el usuario: {e}")
         finally:
