@@ -18,7 +18,7 @@ def comprar_accion(cuit, codigo_accion, cantidad):
 
             if saldo >= costo_total:
                 cursor.execute(
-                    "INSERT INTO transacciones (cuit, codigo_accion, cantidad, precio, total) VALUES (%s, %s, %s, %s, %s)",
+                    "INSERT INTO transacciones (cuit, codigo_accion, tipo, cantidad, precio, total) VALUES (%s, %s, 'compra', %s, %s, %s)",
                     (cuit, codigo_accion, cantidad, precio_accion, costo_total),
                 )
                 nuevo_saldo = saldo - costo_total
@@ -35,6 +35,7 @@ def comprar_accion(cuit, codigo_accion, cantidad):
         finally:
             cursor.close()
             connection.close()
+
 
 def obtener_precio_accion(simbolo):
     connection = connect_to_mysql()
@@ -114,13 +115,46 @@ def calcular_rendimiento(inversor_id, fecha_inicio, fecha_fin):
         print("No se pudo conectar a la base de datos")
 
 
+def obtener_portafolio(cuit):
+    connection = connect_to_mysql()
+    if connection:
+        cursor = connection.cursor()
+        try:
+            cursor.execute(
+                """
+                SELECT t.codigo_accion, SUM(t.cantidad) AS cantidad_total
+                FROM transacciones t
+                WHERE t.cuit = %s AND t.tipo = 'compra'
+                GROUP BY t.codigo_accion
+            """,
+                (cuit,),
+            )
+
+            portafolio = cursor.fetchall()
+
+            if portafolio:
+                print("Acciones en su portafolio:")
+                for accion in portafolio:
+                    codigo_accion = accion[0]
+                    cantidad = accion[1]
+                    print(f"Acción: {codigo_accion} | Cantidad: {cantidad}")
+            else:
+                print("No tienes acciones en tu portafolio.")
+        except mysql.connector.Error as err:
+            print(f"Error al obtener el portafolio: {err}")
+        finally:
+            cursor.close()
+            connection.close()
+
+
 def menu_principal(inversor_id):
     while True:
         print("\n--- Panel de Control ---")
         print("1. Comprar Acción")
         print("2. Vender Acción")
         print("3. Calcular Rendimiento")
-        print("4. Salir")
+        print("4. Ver Portafolio")
+        print("5. Salir")
 
         opcion = input("Seleccione una opción: ")
 
@@ -143,6 +177,8 @@ def menu_principal(inversor_id):
             fecha_fin = input("Ingrese la fecha de fin (YYYY-MM-DD): ")
             calcular_rendimiento(inversor_id, fecha_inicio, fecha_fin)
         elif opcion == "4":
+            obtener_portafolio(inversor_id)
+        elif opcion == "5":
             print("Saliendo del panel de control.")
             break
         else:
